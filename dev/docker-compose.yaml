@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+
+  artifactory:
+    image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.16.3
+    container_name: dms-dev-artifactory
+    ports:
+      - 18081:8081
+      - 18082:8082
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "10"
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
+
+  components-registry-service:
+    container_name: dms-dev-components-registry-service
+    image: ${OCTOPUS_GITHUB_DOCKER_REGISTRY}/octopusden/components-registry-service:${OCTOPUS_COMPONENTS_REGISTRY_SERVICE_VERSION}
+    ports:
+      - "4567:4567"
+    environment:
+      - SPRING_CONFIG_ADDITIONAL_LOCATION=/
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_CONFIG_ENABLED=false
+    volumes:
+      - ./configs/components-registry-service.yaml:/application-dev.yaml
+      - ./test-data/components-registry:/components-registry
+
+  release-management-service:
+    container_name: dms-dev-release-management-service
+    image: ${OCTOPUS_GITHUB_DOCKER_REGISTRY}/octopusden/release-management-service:${OCTOPUS_RELEASE_MANAGEMENT_SERVICE_VERSION}
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_CONFIG_ADDITIONAL_LOCATION=/
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_CONFIG_ENABLED=false
+    volumes:
+      - ./configs/release-management-service.yaml:/application-dev.yaml
+
+  mockserver:
+    container_name: dms-dev-mockserver
+    image: ${DOCKER_REGISTRY}/mockserver/mockserver:mockserver-5.11.1
+    ports:
+      - "1080:1080"
+
+  dms-db:
+    image: ${DOCKER_REGISTRY}/postgres:11-alpine
+    container_name: dms-dev-dms-db
+    restart: always
+    environment:
+      POSTGRES_USER: dms
+      POSTGRES_PASSWORD: dms
+      POSTGRES_DB: dms
+    ports:
+      - 5432:5432
+
+  dms-service:
+    container_name: dms-dev-dms-service
+    image: ${OCTOPUS_GITHUB_DOCKER_REGISTRY}/octopusden/dms-service:${OCTOPUS_DMS_SERVICE_VERSION}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./configs/dms-service.yaml:/application-dev.yaml
+    depends_on:
+      - dms-db
+      - artifactory
+      - components-registry-service
+      - mockserver
+    environment:
+      - SPRING_CONFIG_ADDITIONAL_LOCATION=/
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_CONFIG_ENABLED=false
+      - AUTH_SERVER_URL=${AUTH_SERVER_URL}
+      - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
+
+  api-gateway:
+    container_name: dms-dev-api-gateway
+    restart: always
+    image: ${OCTOPUS_GITHUB_DOCKER_REGISTRY}/octopusden/api-gateway:${OCTOPUS_API_GATEWAY_VERSION}
+    ports:
+      - 8765:8765
+    volumes:
+      - ./configs/api-gateway.yaml:/application-dev.yaml
+    environment:
+      - SPRING_CONFIG_ADDITIONAL_LOCATION=/
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_CONFIG_ENABLED=false
+      - AUTH_SERVER_URL=${AUTH_SERVER_URL}
+      - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
+      - AUTH_SERVER_CLIENT_ID=${AUTH_SERVER_CLIENT_ID}
+      - AUTH_SERVER_CLIENT_SECRET=${AUTH_SERVER_CLIENT_SECRET}
+    depends_on:
+      - dms-service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
