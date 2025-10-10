@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 import reactor.core.publisher.Mono
+import java.net.URI
 
 @Configuration
 @EnableWebFluxSecurity
@@ -30,6 +30,8 @@ open class SecurityConfig(
                         "/static/**",
                         "/bundle.js",
                         "/main.css",
+                        "/favicon.ico",
+                        "/logout"
                     ).permitAll()
                     .pathMatchers(
                         "/",
@@ -41,12 +43,14 @@ open class SecurityConfig(
                     .anyExchange().authenticated()
             }
             .oauth2Login(Customizer.withDefaults())
-            .logout {
-                it.logoutSuccessHandler { exchange, _ ->
-                    exchange.exchange.response.statusCode = HttpStatus.FOUND
-                    exchange.exchange.response.headers.add(HttpHeaders.LOCATION, logoutUrl)
-                    Mono.empty()
-                }
+            .logout { logout ->
+                logout
+                    .logoutSuccessHandler { webFilterExchange, _ ->
+                        val response = webFilterExchange.exchange.response
+                        response.statusCode = HttpStatus.FOUND
+                        response.headers.location = URI.create(logoutUrl)
+                        Mono.empty()
+                    }
             }
             .csrf { it.disable() }
         return http.build()

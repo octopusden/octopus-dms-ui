@@ -1,12 +1,5 @@
 server:
   port: 8090
-#  reactive:
-#    session:
-#      cookie:
-#        name: SESSION
-#        path: /
-#        same-site: lax
-#        http-only: true
 
 spring:
   cloud:

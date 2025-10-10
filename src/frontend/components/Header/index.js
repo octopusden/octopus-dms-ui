@@ -12,7 +12,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     const logOut = () => {
-        window.location.href = '/logout'
+        window.location.href = '/logout';
     }
     return {
         logOut
