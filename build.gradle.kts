@@ -93,6 +93,10 @@ signing {
     sign(publishing.publications["bootJar"])
 }
 
+springBoot {
+    buildInfo()
+}
+
 docker {
     springBootApplication {
         baseImage.set("${"dockerRegistry".getExt()}/eclipse-temurin:21-jdk")
