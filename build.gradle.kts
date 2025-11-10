@@ -12,7 +12,6 @@ plugins {
 }
 
 group = "org.octopusden.octopus.dms"
-version = "1.0-SNAPSHOT"
 
 fun String.getExt() = project.ext[this] as String
 
