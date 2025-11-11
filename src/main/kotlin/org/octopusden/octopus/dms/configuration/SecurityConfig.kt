@@ -1,10 +1,8 @@
 package org.octopusden.octopus.dms.config
 
-import org.octopusden.cloud.commons.security.client.AuthServerClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
@@ -15,7 +13,6 @@ import java.net.URI
 
 @Configuration
 @EnableWebFluxSecurity
-@Import(AuthServerClient::class)
 open class SecurityConfig(
     @Value("\${auth-server.logout-url}")
     private val logoutUrl: String
@@ -31,14 +28,14 @@ open class SecurityConfig(
                         "/bundle.js",
                         "/main.css",
                         "/favicon.ico",
-                        "/logout"
+                        "/logout",
+                        "/actuator/**",
                     ).permitAll()
                     .pathMatchers(
                         "/",
                         "/index.html",
                         "/auth/**",
                         "/rest/api/**",
-                        "/actuator/**",
                     ).authenticated()
                     .anyExchange().authenticated()
             }
