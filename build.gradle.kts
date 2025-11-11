@@ -2,13 +2,13 @@ import com.github.gradle.node.npm.task.NpmTask
 import java.time.Duration
 
 plugins {
+    kotlin("jvm")
+    id("org.springframework.boot")
+    id("com.github.node-gradle.node")
+    id("io.github.gradle-nexus.publish-plugin")
+    id("com.bmuschko.docker-spring-boot-application")
     signing
     `maven-publish`
-    kotlin("jvm") version "1.9.22"
-    id("org.springframework.boot") version "3.2.2"
-    id("com.github.node-gradle.node") version "7.0.2"
-    id("com.bmuschko.docker-spring-boot-application") version "9.4.0"
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
 group = "org.octopusden.octopus.dms"
