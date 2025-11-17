@@ -71,7 +71,7 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://github.com/octopus-dms-ui.git")
+                    url.set("https://github.com/octopusden/octopus-dms-ui.git")
                     connection.set("scm:git://github.com/octopusden/octopus-dms-ui.git")
                 }
                 developers {
