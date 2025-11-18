@@ -115,6 +115,7 @@ tasks.withType<ProcessResources> {
 }
 
 node {
+    nodeProjectDir.set(project.rootDir.resolve("frontend"))
     version.set("16.20.2")
     download.set(true)
     npmVersion.set("8.19.4")

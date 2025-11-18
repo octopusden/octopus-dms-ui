@@ -13,7 +13,7 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 const outputSubDir = 'src/main/resources/static'
 
 var config = {
-  context: __dirname + '/frontend',
+  context: __dirname + '/src',
   entry: './index.js',
   output: {
     path: `${__dirname}/${outputSubDir}`,
