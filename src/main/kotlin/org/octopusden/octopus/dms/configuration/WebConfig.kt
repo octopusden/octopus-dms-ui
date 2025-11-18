@@ -12,7 +12,7 @@ open class WebConfig : WebFluxConfigurer {
             "/bundle.js",
             "/main.css",
             "/favicon.ico",
-            "/index.html"
+            "/index.html",
         ).addResourceLocations("classpath:/static/")
     }
 }

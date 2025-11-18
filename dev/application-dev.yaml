@@ -5,12 +5,9 @@ spring:
         - TokenRelay
       routes:
         - id: dms-service
-          uri: http://localhost:8765/dms-service
+          uri: http://localhost:8080
           predicates:
             - Path=/auth/**,/rest/api/**
-          filters:
-            - StripPrefix=0
-            - RemoveResponseHeader=Set-Cookie
   security:
     oauth2:
       client:
@@ -35,6 +32,17 @@ auth-server:
   realm: # set via env
   client-id: # set via env
   client-secret: # set via env
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, env, metrics, threaddump, heapdump, info, configprops, prometheus, loggers
+    loggers:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
 
 logging:
   level:
