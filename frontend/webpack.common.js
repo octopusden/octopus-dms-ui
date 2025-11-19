@@ -10,7 +10,7 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   inject : 'body',
 
 });
-const outputSubDir = 'src/main/resources/static'
+const outputSubDir = '../src/main/resources/static'
 
 var config = {
   context: __dirname + '/src',
