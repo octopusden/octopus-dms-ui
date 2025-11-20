@@ -1,4 +1,4 @@
-rootProject.name = "octopus-dms-ui"
+rootProject.name = "dms-ui"
 
 pluginManagement {
     plugins {
