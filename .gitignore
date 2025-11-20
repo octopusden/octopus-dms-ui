@@ -27,5 +27,4 @@ replay_pid*
 .gradle
 build
 
-**/resources/static
-**/node_modules
+/frontend/node_modules

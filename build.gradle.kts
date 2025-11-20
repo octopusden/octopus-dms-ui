@@ -1,4 +1,5 @@
 import com.github.gradle.node.npm.task.NpmTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.Duration
 
 plugins {
@@ -8,18 +9,48 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin")
     id("com.bmuschko.docker-spring-boot-application")
     signing
+    idea
     `maven-publish`
 }
 
 group = "org.octopusden.octopus.dms"
 
-fun String.getExt() = project.ext[this] as String
+java {
+    withJavadocJar()
+    withSourcesJar()
+    JavaVersion.VERSION_21.let {
+        sourceCompatibility = it
+        targetCompatibility = it
+    }
+}
+
+kotlin {
+    compilerOptions.jvmTarget = JvmTarget.JVM_21
+}
+
+idea.module {
+    isDownloadJavadoc = true
+    isDownloadSources = true
+}
 
 repositories {
     mavenCentral()
     maven {
         url = uri("https://repo.gradle.org/gradle/libs-releases")
     }
+}
+
+dependencies {
+    implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${project.property("spring-cloud.version")}"))
+    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
+    implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
+
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:${project.properties["spring-boot.version"]}"))
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+
+    testImplementation(kotlin("test"))
 }
 
 ext {
@@ -38,6 +69,36 @@ ext {
                 .getOrDefault("OCTOPUS_GITHUB_DOCKER_REGISTRY", project.properties["octopus.github.docker.registry"])
         )
     }
+}
+
+fun String.getExt() = project.ext[this] as String
+
+springBoot {
+    buildInfo()
+}
+
+node {
+    nodeProjectDir.set(project.rootDir.resolve("frontend"))
+    version.set("16.20.2")
+    download.set(true)
+    npmVersion.set("8.19.4")
+}
+
+val npmBuild = tasks.register<NpmTask>("npmBuild") {
+    dependsOn("npmInstall")
+    npmCommand.set(listOf("run", "build"))
+}
+
+tasks.withType<ProcessResources> {
+    dependsOn(npmBuild)
+}
+
+tasks.getByName<Delete>("clean") {
+    this.delete.add("$projectDir/node_modules")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 nexusPublishing {
@@ -93,51 +154,10 @@ signing {
     sign(publishing.publications["bootJar"])
 }
 
-springBoot {
-    buildInfo()
-}
-
 docker {
     springBootApplication {
         baseImage.set("${"dockerRegistry".getExt()}/eclipse-temurin:21-jdk")
         ports.set(listOf(8080))
         images.set(setOf("${"octopusGithubDockerRegistry".getExt()}/octopusden/${project.name}:${project.version}"))
     }
-}
-
-val npmBuild = tasks.register<NpmTask>("npmBuild") {
-    dependsOn("npmInstall")
-    npmCommand.set(listOf("run", "build"))
-}
-
-tasks.withType<ProcessResources> {
-    dependsOn(npmBuild)
-}
-
-node {
-    nodeProjectDir.set(project.rootDir.resolve("frontend"))
-    version.set("16.20.2")
-    download.set(true)
-    npmVersion.set("8.19.4")
-}
-
-tasks.getByName<Delete>("clean") {
-    this.delete.add("$projectDir/node_modules")
-}
-
-dependencies {
-    implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${project.property("spring-cloud.version")}"))
-    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
-    implementation("org.springframework.cloud:spring-cloud-starter-config")
-    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
-
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:${project.properties["spring-boot.version"]}"))
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-
-    testImplementation(kotlin("test"))
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
