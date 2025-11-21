@@ -12,5 +12,5 @@ jobs:
       java-version: '21'
       commit-hash: ${{ github.event.client_payload.commit }}
       build-version: ${{ github.event.client_payload.project_version }}
-      docker-image: dms-service
+      docker-image: dms-ui
     secrets: inherit
