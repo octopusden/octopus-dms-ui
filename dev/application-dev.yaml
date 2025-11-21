@@ -1,0 +1,52 @@
+spring:
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay
+      routes:
+        - id: dms-service
+          uri: http://localhost:8080
+          predicates:
+            - Path=/auth/**,/rest/api/**
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/token
+            authorization-uri: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/auth
+            userinfo-uri: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: ${auth-server.client-id}
+            client-secret: ${auth-server.client-secret}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-name: Authentication Server
+
+auth-server:
+  url: # set via env
+  logout-url: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/logout?redirect_uri=http://localhost:${server.port}
+  realm: # set via env
+  client-id: # set via env
+  client-secret: # set via env
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, env, metrics, threaddump, heapdump, info, configprops, prometheus, loggers
+    loggers:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.boot.context.properties: DEBUG
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: DEBUG
