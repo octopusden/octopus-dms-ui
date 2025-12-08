@@ -93,21 +93,29 @@ function renderComponentVersions(componentId, minorVersionId, versions, props) {
     }).map(version => {
         const versionId = version.version
         const displayName = versionId + (version.status === 'RELEASE' ? '' : `-${version.status}`)
-
-        const childNodes = []
-
         if (componentId === 'test-component-external') {
-            childNodes.push({
-                id: '2.0.152-16',
-                label: '2.0.152-16',
-                version: '2.0.152-16',
+            return {
+                id: versionId,
+                label: displayName,
+                version: versionId,
                 minorVersion: minorVersionId,
-                componentId: 'test-component-external',
-                icon: 'wrench-redo',
-                isSelected: selectedComponent === 'test-component-external' && selectedVersion === '2.0.152-16'
-            })
+                componentId: componentId,
+                icon: 'build',
+                isExpanded: true,
+                childNodes: [
+                    {
+                         id: '2.0.152-16',
+                         label: '2.0.152-16',
+                         version: '2.0.152-16',
+                         minorVersion: minorVersionId,
+                         componentId: 'test-component-external',
+                         icon: 'wrench-redo',
+                         isSelected: selectedComponent === 'test-component-external' && selectedVersion === '2.0.152-16'
+                    }
+                ],
+                isSelected: selectedComponent === componentId && selectedVersion === '2.0.152-16'
+            }
         }
-
         return {
             id: versionId,
             label: displayName,
@@ -115,7 +123,6 @@ function renderComponentVersions(componentId, minorVersionId, versions, props) {
             minorVersion: minorVersionId,
             componentId: componentId,
             icon: 'build',
-            childNodes: childNodes,
             isSelected: selectedComponent === componentId && selectedVersion === versionId
         }
     })
