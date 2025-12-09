@@ -148,7 +148,7 @@ function renderComponentVersions(componentId, minorVersionId, versions, props) {
     
                         if (childNodes.length > 0) {
                             parentNode.childNodes = childNodes
-                            parentNode.isExpanded = parentVersion.expand
+                            parentNode.isExpanded = true
                         }
 
                         result.push(parentNode)
