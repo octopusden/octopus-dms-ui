@@ -120,6 +120,7 @@ function renderComponentVersion(componentId, minorVersionId, version, currentArt
         version: versionId,
         minorVersion: minorVersionId,
         componentId: componentId,
+        hotfix: version.hotfix,
         icon: version.hotfix ? 'wrench' : 'build',
         isSelected: selectedComponent === componentId && selectedVersion === versionId
     }
