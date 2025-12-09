@@ -87,96 +87,42 @@ function renderComponentMinorVersions(componentId, minorVersions, props) {
 
 function renderComponentVersions(componentId, minorVersionId, versions, props) {
     const {showRc, currentArtifacts} = props
-    const {selectedComponent, selectedVersion} = currentArtifacts
 
     const filteredVersions = Object.values(versions).filter(version => {
         return showRc || version.status !== 'RC'
+    }).map(version => renderComponentVersion(componentId, minorVersionId, version, currentArtifacts))
+
+    const regularVersions = filteredVersions.filter(version => !version.hotfix)
+    const hotfixVersions = filteredVersions.filter(version => version.hotfix)
+
+    hotfixVersions.forEach(hotfixVersion => {
+        const parentVersion = regularVersions.find(version => hotfixVersion.version.startsWith(version.version))
+        if (!parentVersion) return
+        if (!parentVersion.childNodes) {
+            parentVersion.childNodes = []
+            parentVersion.isExpanded = true
+        }
+        parentVersion.childNodes.push(hotfixVersion)
     })
 
-    const result = []
-    let i = 0
+    return regularVersions
+}
 
-    while (i < filteredVersions.length) {
-        const version = filteredVersions[i]
-        const versionId = version.version
-        const displayName = versionId + (version.status === 'RELEASE' ? '' : `-${version.status}`)
+function renderComponentVersion(componentId, minorVersionId, version, currentArtifacts) {
+    const {selectedComponent, selectedVersion} = currentArtifacts
+    
+    const versionId = version.version
+    const displayName = versionId + (version.status === 'RELEASE' ? '' : `-${version.status}`)
 
-        if (componentId == "test-component-external") {
-            if (version.version.includes("-")) {
-                const hotfixVersions = []
-                let j = i
-    
-                while (j < filteredVersions.length && filteredVersions[j].version.includes("-")) {
-                    hotfixVersions.push(filteredVersions[j])
-                    j++
-                }
-    
-                if (j < filteredVersions.length) {
-                    const parentVersion = filteredVersions[j]
-                    const parentVersionId = parentVersion.version
-    
-                    const allHotfixesMatchParent = hotfixVersions.every(hf =>
-                        hf.version.startsWith(parentVersionId)
-                    )
-    
-                    if (allHotfixesMatchParent) {
-                        const parentDisplayName = parentVersionId + (parentVersion.status === 'RELEASE' ? '' : `-${parentVersion.status}`)
-    
-                        const childNodes = hotfixVersions.map(hf => {
-                            const hfVersionId = hf.version
-                            const hfDisplayName = hfVersionId + (hf.status === 'RELEASE' ? '' : `-${hf.status}`)
-                            return {
-                                id: hfVersionId,
-                                label: hfDisplayName,
-                                version: hfVersionId,
-                                minorVersion: minorVersionId,
-                                componentId: componentId,
-                                icon: 'wrench',
-                                isSelected: selectedComponent === componentId && selectedVersion === hfVersionId
-                            }
-                        })
-
-                        const parentNode = {
-                            id: parentVersionId,
-                            label: parentDisplayName,
-                            version: parentVersionId,
-                            minorVersion: minorVersionId,
-                            componentId: componentId,
-                            icon: 'build',
-                            isSelected: selectedComponent === componentId && selectedVersion === parentVersionId
-                        }
-    
-                        if (childNodes.length > 0) {
-                            parentNode.childNodes = childNodes
-                            parentNode.isExpanded = true
-                        }
-
-                        result.push(parentNode)
-    
-                        i = j + 1
-                        continue
-                    }
-                }
-    
-                i = j
-                continue
-            }
-        }
-
-
-        result.push({
-            id: versionId,
-            label: displayName,
-            version: versionId,
-            minorVersion: minorVersionId,
-            componentId: componentId,
-            icon: 'build',
-            isSelected: selectedComponent === componentId && selectedVersion === versionId
-        })
-        i++
+    return {
+        id: versionId,
+        label: displayName,
+        version: versionId,
+        minorVersion: minorVersionId,
+        componentId: componentId,
+        icon: version.hotfix ? 'wrench' : 'build',
+        isSelected: selectedComponent === componentId && selectedVersion === versionId
     }
-
-    return result
 }
 
 
