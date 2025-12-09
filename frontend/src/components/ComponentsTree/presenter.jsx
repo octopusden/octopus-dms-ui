@@ -87,22 +87,43 @@ function renderComponentMinorVersions(componentId, minorVersions, props) {
 
 function renderComponentVersions(componentId, minorVersionId, versions, props) {
     const {showRc, currentArtifacts} = props
-    const {selectedComponent, selectedVersion} = currentArtifacts
-    return Object.values(versions).filter(version => {
+
+    const filteredVersions = Object.values(versions).filter(version => {
         return showRc || version.status !== 'RC'
-    }).map(version => {
-        const versionId = version.version
-        const displayName = versionId + (version.status === 'RELEASE' ? '' : `-${version.status}`)
-        return {
-            id: versionId,
-            label: displayName,
-            version: versionId,
-            minorVersion: minorVersionId,
-            componentId: componentId,
-            icon: 'build',
-            isSelected: selectedComponent === componentId && selectedVersion === versionId
+    }).map(version => renderComponentVersion(componentId, minorVersionId, version, currentArtifacts))
+
+    const regularVersions = filteredVersions.filter(version => !version.hotfix)
+    const hotfixVersions = filteredVersions.filter(version => version.hotfix)
+
+    hotfixVersions.forEach(hotfixVersion => {
+        const parentVersion = regularVersions.find(version => hotfixVersion.version.startsWith(version.version))
+        if (!parentVersion) return
+        if (!parentVersion.childNodes) {
+            parentVersion.childNodes = []
+            parentVersion.isExpanded = true
         }
+        parentVersion.childNodes.push(hotfixVersion)
     })
+
+    return regularVersions
+}
+
+function renderComponentVersion(componentId, minorVersionId, version, currentArtifacts) {
+    const {selectedComponent, selectedVersion} = currentArtifacts
+
+    const versionId = version.version
+    const displayName = versionId + (version.status === 'RELEASE' ? '' : `-${version.status}`)
+
+    return {
+        id: versionId,
+        label: displayName,
+        version: versionId,
+        minorVersion: minorVersionId,
+        componentId: componentId,
+        hotfix: version.hotfix,
+        icon: version.hotfix ? 'wrench' : 'build',
+        isSelected: selectedComponent === componentId && selectedVersion === versionId
+    }
 }
 
 export {

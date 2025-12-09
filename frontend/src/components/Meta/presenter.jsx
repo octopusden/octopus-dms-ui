@@ -10,6 +10,7 @@ export default function meta(props) {
                 <MetaItem icon='application' keyName='Component name' value={meta.componentName}/>
                 <MetaItem icon='id-number' keyName='Component ID' value={meta.componentId}/>
                 <MetaItem icon='box' keyName='Version' value={meta.version}/>
+                <MetaItem icon='wrench' keyName='Hotfix' value={meta.hotfix ? "yes" : "no"}/>
                 <MetaItem icon='applications' keyName='Solution' value={meta.solution ? "yes" : "no"}/>
             </div>
             <div className="meta-column">

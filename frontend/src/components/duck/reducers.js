@@ -302,6 +302,7 @@ const componentsReducer = (state = INITIAL_STATE, action) => {
                         clientCode: componentVersion.clientCode,
                         parentComponent: componentVersion.parentComponent,
                         version: componentVersion.version,
+                        hotfix: componentVersion.hotfix,
                         status: componentVersion.status + " ("  + (!!componentVersion.promotedAt ? new Date(componentVersion.promotedAt).toLocaleString("ru-RU") : "unknown") + ")",
                         published: componentVersion.published
                     },
