@@ -1,6 +1,7 @@
 import React from 'react'
-import {Spinner, Tree} from "@blueprintjs/core";
-import {getSecondaryLabel} from "../common";
+import { Spinner, Tree } from "@blueprintjs/core";
+import { getSecondaryLabel } from "../common";
+import { groupHotfixVersions } from "../../utils/version";
 
 const treeLevel = {
     ROOT: 'ROOT',
@@ -92,26 +93,7 @@ function renderComponentVersions(componentId, minorVersionId, versions, props) {
         return showRc || version.status !== 'RC'
     }).map(version => renderComponentVersion(componentId, minorVersionId, version, currentArtifacts))
 
-    const regularVersions = filteredVersions.filter(version => !version.hotfix)
-    const hotfixVersions = filteredVersions.filter(version => version.hotfix)
-
-    hotfixVersions.forEach(hotfixVersion => {
-        const parentVersion = regularVersions.find(version =>
-            hotfixVersion.version.startsWith(version.version + '-') ||
-            hotfixVersion.version.startsWith(version.version + '.')
-        )
-        if (!parentVersion) {
-            console.warn(`Parent version not found for hotfix version ${hotfixVersion.version}`)
-            return
-        }
-        if (!parentVersion.childNodes) {
-            parentVersion.childNodes = []
-            parentVersion.isExpanded = true
-        }
-        parentVersion.childNodes.push(hotfixVersion)
-    })
-
-    return regularVersions
+    return groupHotfixVersions(filteredVersions)
 }
 
 function renderComponentVersion(componentId, minorVersionId, version, currentArtifacts) {
