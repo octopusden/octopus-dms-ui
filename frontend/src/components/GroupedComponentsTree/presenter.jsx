@@ -125,7 +125,7 @@ function renderVersions(groupId, componentId, minorVersion, versions, props) {
             hotfixVersion.version.startsWith(version.version + '.')
         )
         if (!parentVersion) {
-            console.log(`Parent version not found for hotfix version ${hotfixVersion.version}`)
+            console.warn(`Parent version not found for hotfix version ${hotfixVersion.version}`)
             return
         }
         if (!parentVersion.childNodes) {
