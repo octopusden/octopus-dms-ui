@@ -110,6 +110,7 @@ function renderVersions(solutionId, solutionMinor, solutionVersions, props) {
                 solutionId: solutionId,
                 solutionMinor: solutionMinor,
                 solutionVersion: solutionVersion,
+                hotfix: version.hotfix,
                 icon: version.hotfix ? 'wrench' : 'build',
                 isExpanded: version.expand,
                 isSelected: selectedComponent === solutionId && selectedVersion === solutionVersion,

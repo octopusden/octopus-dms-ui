@@ -96,8 +96,14 @@ function renderComponentVersions(componentId, minorVersionId, versions, props) {
     const hotfixVersions = filteredVersions.filter(version => version.hotfix)
 
     hotfixVersions.forEach(hotfixVersion => {
-        const parentVersion = regularVersions.find(version => hotfixVersion.version.startsWith(version.version))
-        if (!parentVersion) return
+        const parentVersion = regularVersions.find(version =>
+            hotfixVersion.version.startsWith(version.version + '-') ||
+            hotfixVersion.version.startsWith(version.version + '.')
+        )
+        if (!parentVersion) {
+            console.log(`Parent version not found for hotfix version ${hotfixVersion.version}`)
+            return
+        }
         if (!parentVersion.childNodes) {
             parentVersion.childNodes = []
             parentVersion.isExpanded = true
