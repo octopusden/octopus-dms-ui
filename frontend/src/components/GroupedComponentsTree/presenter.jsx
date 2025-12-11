@@ -1,6 +1,7 @@
 import React from 'react'
-import {Spinner, Tree} from "@blueprintjs/core";
-import {getSecondaryLabel} from "../common";
+import { Spinner, Tree } from "@blueprintjs/core";
+import { getSecondaryLabel } from "../common";
+import { groupHotfixVersions } from "../../utils/version";
 
 const treeLevel = {
     GROUP: 'GROUP',
@@ -111,26 +112,32 @@ function renderComponentMinorVersions(groupId, componentId, minorVersions, props
 
 function renderVersions(groupId, componentId, minorVersion, versions, props) {
     const {showRc, currentArtifacts} = props
+
+    const filteredVersions = Object.values(versions).filter(version => {
+        return showRc || version.status !== 'RC'
+    }).map(version => renderVersion(groupId, componentId, minorVersion, version, currentArtifacts))
+
+    return groupHotfixVersions(filteredVersions)
+}
+
+function renderVersion (groupId, componentId, minorVersion, version, currentArtifacts) {
     const {selectedGroup, selectedComponent, selectedVersion} = currentArtifacts
-    return Object.values(versions)
-        .filter(version => {
-            return showRc || version.status !== 'RC'
-        })
-        .map(version => {
-            const displayName = version.version + (version.status === 'RELEASE' ? '' : `-${version.status}`)
-            return {
-                level: treeLevel.VERSION,
-                id: version.id,
-                label: displayName,
-                groupId: groupId,
-                componentId: componentId,
-                minorVersion: minorVersion,
-                version: version.version,
-                icon: 'build',
-                isSelected: selectedGroup === groupId && selectedComponent === componentId
-                    && selectedVersion === version.version
-            }
-        })
+
+    const displayName = version.version + (version.status === 'RELEASE' ? '' : `-${version.status}`)
+
+    return {
+        level: treeLevel.VERSION,
+        id: version.id,
+        label: displayName,
+        groupId: groupId,
+        componentId: componentId,
+        minorVersion: minorVersion,
+        version: version.version,
+        hotfix: version.hotfix,
+        icon: version.hotfix ? 'wrench' : 'build',
+        isSelected: selectedGroup === groupId && selectedComponent === componentId
+            && selectedVersion === version.version
+    }
 }
 
 export {
