@@ -10,11 +10,12 @@ html, body, #root {
     margin: 0;
 }
 
-body {
+#body-root {
     font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
     font-size: 14px;
     line-height: 20px;
     color: #444;
     font-size: 14px;
     font-variant: normal;
+    padding: 0;
 }
