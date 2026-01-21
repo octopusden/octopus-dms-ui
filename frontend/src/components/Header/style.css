@@ -6,6 +6,7 @@
     justify-content: space-between;
     background: #D8E1E8;
     color: #30404D;
+    max-height: 60px;
 
     & .logo {
         padding: 20px 15px;
