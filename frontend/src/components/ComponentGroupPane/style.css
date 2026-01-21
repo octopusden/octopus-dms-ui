@@ -15,6 +15,10 @@
 
         & .bp3-tab-panel {
             overflow-y: auto;
+
+            & > div {
+                min-width: 345px;
+            }
         }
     }
 }
