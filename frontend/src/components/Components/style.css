@@ -51,6 +51,7 @@
                 }
 
                 & .preview-block {
+                    font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif !important;
                     padding-top: 10px;
                     padding-left: 10px;
                     flex-grow: 1;
