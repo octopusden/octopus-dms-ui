@@ -51,6 +51,7 @@
                 }
 
                 & .preview-block {
+                    max-width: calc(100vw - 380px - 330px);
                     padding-top: 10px;
                     padding-left: 10px;
                     flex-grow: 1;
