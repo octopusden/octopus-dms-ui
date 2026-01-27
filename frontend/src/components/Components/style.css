@@ -51,6 +51,7 @@
                 }
 
                 & .preview-block {
+                    font-family: Menlo, Monaco, Consolas, "Courier New", monospace !important;
                     padding-top: 10px;
                     padding-left: 10px;
                     flex-grow: 1;
