@@ -57,6 +57,10 @@
                     padding-left: 10px;
                     flex-grow: 1;
                     overflow-y: auto;
+
+                    & li {
+                        word-wrap: break-word !important;
+                    }
                 }
             }
         }
