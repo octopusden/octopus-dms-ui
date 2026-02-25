@@ -17,7 +17,7 @@ services:
       retries: 5
 
   artifactory:
-    image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.125.7
+    image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.125.11
     container_name: artifactory
     depends_on:
       postgres:
