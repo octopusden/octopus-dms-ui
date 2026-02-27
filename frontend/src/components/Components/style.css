@@ -53,8 +53,6 @@
                 & .preview-block {
                     max-width: calc(100vw - 380px - 320px);
                     font-family: Menlo, Monaco, Consolas, "Courier New", monospace !important;
-                    padding-top: 10px;
-                    padding-left: 10px;
                     flex-grow: 1;
                     overflow-y: auto;
 

@@ -26,7 +26,12 @@ export default function preview(props) {
     if (selectedDocument && selectedDocument.documentText) {
         const {documentText} = selectedDocument
         if (isHtml(selectedDocument.displayName)) {
-            return <div dangerouslySetInnerHTML={{__html: documentText}}/>
+            return <iframe
+                className='html-preview-iframe'
+                srcDoc={documentText}
+                sandbox="allow-same-origin allow-scripts"
+                title="HTML Preview"
+            />
         } else {
             return <pre>{documentText}</pre>
         }
