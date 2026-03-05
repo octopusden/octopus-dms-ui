@@ -29,7 +29,7 @@ export default function preview(props) {
             return <iframe
                 className='html-preview-iframe'
                 srcDoc={documentText}
-                sandbox="allow-same-origin allow-scripts"
+                sandbox=""
                 title="HTML Preview"
             />
         } else {
