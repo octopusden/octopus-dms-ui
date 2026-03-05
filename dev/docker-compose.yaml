@@ -27,7 +27,7 @@ services:
       - "18082:8082"
     volumes:
       - artifactory-data:/var/opt/jfrog/artifactory
-      - ./system.yaml:/opt/jfrog/artifactory/var/etc/system.yaml
+      - ./configs/system.yaml:/opt/jfrog/artifactory/var/etc/system.yaml
     environment:
       - JF_SHARED_DATABASE_TYPE=postgresql
       - JF_SHARED_DATABASE_DRIVER=org.postgresql.Driver
@@ -108,6 +108,23 @@ services:
       - SPRING_CLOUD_CONFIG_ENABLED=false
       - AUTH_SERVER_URL=${AUTH_SERVER_URL}
       - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    container_name: keycloak-dev
+    command:
+      - start-dev
+      - --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_LOG_LEVEL=INFO
+      - KC_LOG_CONSOLE_LEVEL=INFO
+    volumes:
+      - ./test-data/keycloak/dev-realm.json:/opt/keycloak/data/import/dev-realm.json
+    ports:
+      - "8180:8080"
+
 volumes:
   postgres-data:
   artifactory-data:
