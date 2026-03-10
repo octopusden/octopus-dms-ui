@@ -27,7 +27,6 @@ open class SecurityConfig(
                         "/main.css",
                         "/favicon.ico",
                         "/actuator/**",
-                        "/logout",
                         "/logout/connect/back-channel/**",
                     ).permitAll()
                     .anyExchange().authenticated()
