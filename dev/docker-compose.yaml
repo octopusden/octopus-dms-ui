@@ -109,22 +109,6 @@ services:
       - AUTH_SERVER_URL=${AUTH_SERVER_URL}
       - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:24.0.3
-    container_name: keycloak-dev
-    command:
-      - start-dev
-      - --import-realm
-    environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_LOG_LEVEL=INFO
-      - KC_LOG_CONSOLE_LEVEL=INFO
-    volumes:
-      - ./test-data/keycloak/dev-realm.json:/opt/keycloak/data/import/dev-realm.json
-    ports:
-      - "8180:8080"
-
 volumes:
   postgres-data:
   artifactory-data:

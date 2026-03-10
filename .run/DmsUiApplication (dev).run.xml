@@ -7,20 +7,9 @@
         <option name="name" value="spring.config.additional-location" />
         <option name="value" value="dev/configs/dms-ui/" />
       </param>
-      <param>
-        <option name="enabled" value="true" />
-        <option name="name" value="management.endpoint.env.show-values" />
-        <option name="value" value="when_authorized" />
-      </param>
     </additionalParameters>
-    <option name="envFilePaths">
-      <option value="$USER_HOME$/dms-ui.env" />
-    </option>
     <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
-    <module name="dms-ui.main" />
-    <selectedOptions>
-      <option name="environmentVariables" />
-    </selectedOptions>
+    <module name="octopus-dms-ui.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="org.octopusden.octopus.dms.DmsUiApplication" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="true" />

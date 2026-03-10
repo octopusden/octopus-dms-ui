@@ -26,12 +26,11 @@ spring:
             client-id: ${auth-server.client-id}
             client-secret: ${auth-server.client-secret}
             authorization-grant-type: authorization_code
-#            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             client-name: Authentication Server
 
 auth-server:
   url: # set via env
-  logout-url: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/logout
   realm: # set via env
   client-id: # set via env
   client-secret: # set via env
