@@ -11,12 +11,19 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = (dispatch) => {
-    const logOut = () => {
-        window.location.href = '/logout';
+    const logOut = async () => {
+        try {
+            await fetch('/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            window.location.href = '/';
+        } catch (e) {
+            console.error('Logout failed', e);
+            window.location.href = '/';
+        }
     }
-    return {
-        logOut
-    }
+    return { logOut }
 }
 
 const mergeProps = (stateProps, dispatchProps, ownProps) => {
