@@ -30,12 +30,6 @@ open class SecurityConfig(
                         "/logout",
                         "/logout/connect/back-channel/**",
                     ).permitAll()
-                    .pathMatchers(
-                        "/",
-                        "/index.html",
-                        "/auth/**",
-                        "/rest/api/**",
-                    ).authenticated()
                     .anyExchange().authenticated()
             }
             .oauth2Login(Customizer.withDefaults())
