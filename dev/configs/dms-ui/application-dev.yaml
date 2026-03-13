@@ -17,8 +17,11 @@ spring:
             authorization-uri: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/auth
             userinfo-uri: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/userinfo
             user-name-attribute: preferred_username
+            jwk-set-uri: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/certs
+            issuer-uri: ${auth-server.url}/realms/${auth-server.realm}
         registration:
           keycloak:
+            scope: openid
             provider: keycloak
             client-id: ${auth-server.client-id}
             client-secret: ${auth-server.client-secret}
@@ -28,7 +31,6 @@ spring:
 
 auth-server:
   url: # set via env
-  logout-url: ${auth-server.url}/realms/${auth-server.realm}/protocol/openid-connect/logout?redirect_uri=http://localhost:${server.port}
   realm: # set via env
   client-id: # set via env
   client-secret: # set via env

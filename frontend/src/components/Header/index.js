@@ -12,11 +12,13 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     const logOut = () => {
-        window.location.href = '/logout';
+        const form = document.createElement('form')
+        form.method = 'POST'
+        form.action = '/logout'
+        document.body.appendChild(form)
+        form.submit()
     }
-    return {
-        logOut
-    }
+    return { logOut }
 }
 
 const mergeProps = (stateProps, dispatchProps, ownProps) => {

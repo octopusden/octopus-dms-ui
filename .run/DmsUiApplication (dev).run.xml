@@ -5,7 +5,7 @@
       <param>
         <option name="enabled" value="true" />
         <option name="name" value="spring.config.additional-location" />
-        <option name="value" value="dev/" />
+        <option name="value" value="dev/configs/dms-ui/" />
       </param>
     </additionalParameters>
     <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
