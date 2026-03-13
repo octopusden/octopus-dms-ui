@@ -11,17 +11,12 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = (dispatch) => {
-    const logOut = async () => {
-        try {
-            await fetch('/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });
-            window.location.href = '/';
-        } catch (e) {
-            console.error('Logout failed', e);
-            window.location.href = '/';
-        }
+    const logOut = () => {
+        const form = document.createElement('form')
+        form.method = 'POST'
+        form.action = '/logout'
+        document.body.appendChild(form)
+        form.submit()
     }
     return { logOut }
 }
