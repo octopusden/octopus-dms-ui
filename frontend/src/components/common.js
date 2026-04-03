@@ -30,12 +30,16 @@ export function convertArtifactsByTypes(artifacts) {
     return artifacts.reduce((acc, artifact) => {
         if (isPrintableArtifact(artifact)) {
             acc[0].push(artifact)
-        } else if (artifact.repositoryType === 'DOCKER') {
-            acc[2].push(artifact)
-        } else if (artifact.repositoryType === 'SBOM') {
-            acc[3].push(artifact)
         } else {
-            acc[1].push(artifact)
+            if (artifact.repositoryType === 'DOCKER') {
+                acc[2].push(artifact)
+            } else {
+                if(artifact.type === 'sbom') {
+                    acc[3].push(artifact)
+                }else {
+                    acc[1].push(artifact)
+                }
+            }
         }
         return acc
     }, [[], [], [], []])
