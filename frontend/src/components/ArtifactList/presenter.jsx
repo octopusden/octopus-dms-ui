@@ -42,7 +42,7 @@ export default function artifactList({
             }
             {sbomFiles.length > 0 &&
                 <div className='box'>
-                    <H4> Compliance files </H4>
+                    <H4> Compliance artifacts </H4>
                     {artifactBlock(sbomFiles, getDocument, selectedComponent, selectedMinor, selectedVersion, selectedDocument, adminMode, deleteArtifact, showConfirmation)}
                 </div>
             }
