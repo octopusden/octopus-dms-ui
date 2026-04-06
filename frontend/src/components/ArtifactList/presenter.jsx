@@ -20,7 +20,7 @@ export default function artifactList({
             <Spinner size={50} intent="primary"/>
         </div>
     } else {
-        const [printableArtifacts, binaryArtifacts, dockerImages, sbomFiles] = convertArtifactsByTypes(artifacts)
+        const [printableArtifacts, dockerImages, sbomFiles, binaryArtifacts] = convertArtifactsByTypes(artifacts)
         return <div className='artifacts-component-list-block'>
             {printableArtifacts.length > 0 &&
                 <div className='box'>
@@ -42,7 +42,7 @@ export default function artifactList({
             }
             {sbomFiles.length > 0 &&
                 <div className='box'>
-                    <H4> SBOM files </H4>
+                    <H4> Compliance files </H4>
                     {artifactBlock(sbomFiles, getDocument, selectedComponent, selectedMinor, selectedVersion, selectedDocument, adminMode, deleteArtifact, showConfirmation)}
                 </div>
             }

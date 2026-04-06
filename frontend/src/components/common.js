@@ -27,22 +27,23 @@ export function isPrintableArtifact(artifact) {
  * @returns {Array} - array of arrays of artifacts by type [printable, non-printable, docker]
  */
 export function convertArtifactsByTypes(artifacts) {
-    return artifacts.reduce((acc, artifact) => {
-        if (isPrintableArtifact(artifact)) {
-            acc[0].push(artifact)
-        } else {
-            if (artifact.repositoryType === 'DOCKER') {
-                acc[2].push(artifact)
-            } else {
-                if(artifact.type === 'sbom') {
-                    acc[3].push(artifact)
-                }else {
-                    acc[1].push(artifact)
-                }
-            }
-        }
-        return acc
-    }, [[], [], [], []])
+    const printable = []
+    const docker = []
+    const sbom = []
+    const binaries = []
+
+    for (const artifact of artifacts) {
+        if(isPrintableArtifact(artifact))
+            printable.push(artifact)
+        else if(artifact.repositoryType === 'DOCKER')
+            docker.push(artifact)
+        else if(artifact.type === 'sbom')
+            sbom.push(artifact)
+        else
+            binaries.push(artifact)
+    }
+
+    return [printable, docker, sbom, binaries]
 }
 
 export function isHtml(fileName) {
