@@ -29,7 +29,7 @@ export function isPrintableArtifact(artifact) {
 export function convertArtifactsByTypes(artifacts) {
     const printable = []
     const docker = []
-    const sbom = []
+    const complianceArtifacts = []
     const binaries = []
 
     for (const artifact of artifacts) {
@@ -37,13 +37,13 @@ export function convertArtifactsByTypes(artifacts) {
             printable.push(artifact)
         else if(artifact.repositoryType === 'DOCKER')
             docker.push(artifact)
-        else if(artifact.type === 'sbom')
-            sbom.push(artifact)
+        else if(artifact.type === 'compliance-artifacts')
+            complianceArtifacts.push(artifact)
         else
             binaries.push(artifact)
     }
 
-    return [printable, docker, sbom, binaries]
+    return [printable, docker, complianceArtifacts, binaries]
 }
 
 export function isHtml(fileName) {
