@@ -20,7 +20,7 @@ export default function artifactList({
             <Spinner size={50} intent="primary"/>
         </div>
     } else {
-        const [printableArtifacts, binaryArtifacts, dockerImages] = convertArtifactsByTypes(artifacts)
+        const [printableArtifacts, dockerImages, complianceArtifacts, binaryArtifacts] = convertArtifactsByTypes(artifacts)
         return <div className='artifacts-component-list-block'>
             {printableArtifacts.length > 0 &&
                 <div className='box'>
@@ -38,6 +38,12 @@ export default function artifactList({
                 <div className='box'>
                     <H4> Docker images </H4>
                     {artifactBlock(dockerImages, getDocument, selectedComponent, selectedMinor, selectedVersion, selectedDocument, adminMode, deleteArtifact, showConfirmation, false)}
+                </div>
+            }
+            {complianceArtifacts.length > 0 &&
+                <div className='box'>
+                    <H4> Compliance artifacts </H4>
+                    {artifactBlock(complianceArtifacts, getDocument, selectedComponent, selectedMinor, selectedVersion, selectedDocument, adminMode, deleteArtifact, showConfirmation)}
                 </div>
             }
         </div>

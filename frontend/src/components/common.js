@@ -24,21 +24,27 @@ export function isPrintableArtifact(artifact) {
 /**
  * Converts array of artifacts to array of arrays of artifacts by type
  * @param {Array} artifacts
- * @returns {Array} - array of arrays of artifacts by type [printable, non-printable, docker]
+ * @returns {Array} - array of arrays of artifacts by type [printable, docker, compliance-artifacts, non-printable]
  */
 export function convertArtifactsByTypes(artifacts) {
-    return artifacts.reduce((acc, artifact) => {
+    const printable = []
+    const docker = []
+    const complianceArtifacts = []
+    const binaries = []
+
+    for (const artifact of artifacts) {
         if (isPrintableArtifact(artifact)) {
-            acc[0].push(artifact)
+            printable.push(artifact)
+        } else if (artifact.repositoryType === 'DOCKER') {
+            docker.push(artifact)
+        } else if (artifact.type === 'compliance-artifacts') {
+            complianceArtifacts.push(artifact)
         } else {
-            if (artifact.repositoryType === 'DOCKER') {
-                acc[2].push(artifact)
-            } else {
-                acc[1].push(artifact)
-            }
+            binaries.push(artifact)
         }
-        return acc
-    }, [[], [], []])
+    }
+
+    return [printable, docker, complianceArtifacts, binaries]
 }
 
 export function isHtml(fileName) {
