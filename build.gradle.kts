@@ -11,6 +11,21 @@ plugins {
     signing
     idea
     `maven-publish`
+    id("io.gitlab.arturbosch.detekt")
+    id("org.jlleitschuh.gradle.ktlint")
+    id("org.octopusden.octopus-quality")
+}
+
+octopusQuality {
+    // Repo has no tests / no coverage tool yet — disable coverage verification.
+    coverage {
+        enabled.set(false)
+    }
+    // Enforce Kotlin static analysis (detekt + ktlint); current debt is absorbed by
+    // detekt-baseline.xml / ktlint-baseline.xml so the gate stays green while enforcing.
+    kotlin {
+        failOnViolation.set(true)
+    }
 }
 
 group = "org.octopusden.octopus.dms"
@@ -59,16 +74,17 @@ ext {
     System.getenv().let {
         set(
             "signingRequired",
-            it.containsKey("ORG_GRADLE_PROJECT_signingKey") && it.containsKey("ORG_GRADLE_PROJECT_signingPassword")
+            it.containsKey("ORG_GRADLE_PROJECT_signingKey") && it.containsKey("ORG_GRADLE_PROJECT_signingPassword"),
         )
         set(
             "dockerRegistry",
-            System.getenv().getOrDefault("DOCKER_REGISTRY", project.properties["docker.registry"])
+            System.getenv().getOrDefault("DOCKER_REGISTRY", project.properties["docker.registry"]),
         )
         set(
             "octopusGithubDockerRegistry",
-            System.getenv()
-                .getOrDefault("OCTOPUS_GITHUB_DOCKER_REGISTRY", project.properties["octopus.github.docker.registry"])
+            System
+                .getenv()
+                .getOrDefault("OCTOPUS_GITHUB_DOCKER_REGISTRY", project.properties["octopus.github.docker.registry"]),
         )
     }
     val mandatoryProperties = mutableListOf("dockerRegistry", "octopusGithubDockerRegistry")
@@ -76,11 +92,11 @@ ext {
     if (undefinedProperties.isNotEmpty()) {
         throw IllegalArgumentException(
             "Start gradle build with" +
-                    (if (undefinedProperties.contains("dockerRegistry")) " -Pdocker.registry=..." else "") +
-                    (if (undefinedProperties.contains("octopusGithubDockerRegistry")) " -Poctopus.github.docker.registry=..." else "") +
-                    " or set env variable(s):" +
-                    (if (undefinedProperties.contains("dockerRegistry")) " DOCKER_REGISTRY" else "") +
-                    (if (undefinedProperties.contains("octopusGithubDockerRegistry")) " OCTOPUS_GITHUB_DOCKER_REGISTRY" else "")
+                (if (undefinedProperties.contains("dockerRegistry")) " -Pdocker.registry=..." else "") +
+                (if (undefinedProperties.contains("octopusGithubDockerRegistry")) " -Poctopus.github.docker.registry=..." else "") +
+                " or set env variable(s):" +
+                (if (undefinedProperties.contains("dockerRegistry")) " DOCKER_REGISTRY" else "") +
+                (if (undefinedProperties.contains("octopusGithubDockerRegistry")) " OCTOPUS_GITHUB_DOCKER_REGISTRY" else ""),
         )
     }
 }
