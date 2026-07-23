@@ -13,9 +13,8 @@ import org.springframework.security.web.server.authentication.logout.ServerLogou
 @Configuration
 @EnableWebFluxSecurity
 open class SecurityConfig(
-    private val clientRegistrationRepository: ReactiveClientRegistrationRepository
+    private val clientRegistrationRepository: ReactiveClientRegistrationRepository,
 ) {
-
     @Bean
     open fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         http
@@ -29,16 +28,14 @@ open class SecurityConfig(
                         "/actuator/**",
                         "/logout/connect/back-channel/**",
                     ).permitAll()
-                    .anyExchange().authenticated()
-            }
-            .oauth2Login(Customizer.withDefaults())
+                    .anyExchange()
+                    .authenticated()
+            }.oauth2Login(Customizer.withDefaults())
             .logout { logout ->
                 logout.logoutSuccessHandler(oidcLogoutSuccessHandler())
-            }
-            .oidcLogout { oidcLogout ->
+            }.oidcLogout { oidcLogout ->
                 oidcLogout.backChannel(Customizer.withDefaults())
-            }
-            .csrf { it.disable() }
+            }.csrf { it.disable() }
         return http.build()
     }
 

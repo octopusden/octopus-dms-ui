@@ -7,12 +7,13 @@ import org.springframework.web.reactive.config.WebFluxConfigurer
 @Configuration
 open class WebConfig : WebFluxConfigurer {
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler(
-            "/static/**",
-            "/bundle.js",
-            "/main.css",
-            "/favicon.ico",
-            "/index.html",
-        ).addResourceLocations("classpath:/static/")
+        registry
+            .addResourceHandler(
+                "/static/**",
+                "/bundle.js",
+                "/main.css",
+                "/favicon.ico",
+                "/index.html",
+            ).addResourceLocations("classpath:/static/")
     }
 }
