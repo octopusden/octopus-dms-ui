@@ -304,7 +304,8 @@ const componentsReducer = (state = INITIAL_STATE, action) => {
                         version: componentVersion.version,
                         hotfix: componentVersion.hotfix,
                         status: componentVersion.status + " ("  + (!!componentVersion.promotedAt ? new Date(componentVersion.promotedAt).toLocaleString("ru-RU") : "unknown") + ")",
-                        published: componentVersion.published
+                        published: componentVersion.published,
+                        limitations: componentVersion.limitations
                     },
                     preview: {}
                 }
