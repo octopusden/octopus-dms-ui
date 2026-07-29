@@ -6,11 +6,18 @@ on:
 
 jobs:
   build:
-    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-release.yml@v2.4.1
+    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-release.yml@v2.6.2
     with:
       flow-type: hybrid
       java-version: '21'
       commit-hash: ${{ github.event.client_payload.commit }}
       build-version: ${{ github.event.client_payload.project_version }}
       docker-image: dms-ui
+      # Nothing consumes this repository as a Maven dependency — the deliverable is the
+      # docker image above — so the whole Maven Central publication is skipped.
+      publish-to-nexus: false
+      # With no artifact reaching Central there is nothing to poll for, so the release is
+      # registered inline. Safe here because the deliverable already exists at that point:
+      # the docker push is synchronous and runs earlier in the same job.
+      register-release-immediately: true
     secrets: inherit
