@@ -8,8 +8,10 @@ plugins {
     id("com.github.node-gradle.node")
     id("io.github.gradle-nexus.publish-plugin")
     id("com.bmuschko.docker-spring-boot-application")
-    signing
     idea
+    // Kept although nothing is published: the release workflow may invoke the `publish`
+    // lifecycle task, which then exists as a no-op, and the publication guard below reads
+    // `plugins.hasPlugin("maven-publish")` to decide what to inspect.
     `maven-publish`
     id("io.gitlab.arturbosch.detekt")
     id("org.jlleitschuh.gradle.ktlint")
@@ -72,10 +74,6 @@ dependencies {
 
 ext {
     System.getenv().let {
-        set(
-            "signingRequired",
-            it.containsKey("ORG_GRADLE_PROJECT_signingKey") && it.containsKey("ORG_GRADLE_PROJECT_signingPassword"),
-        )
         set(
             "dockerRegistry",
             System.getenv().getOrDefault("DOCKER_REGISTRY", project.properties["docker.registry"]),
