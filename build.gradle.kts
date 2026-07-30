@@ -8,8 +8,10 @@ plugins {
     id("com.github.node-gradle.node")
     id("io.github.gradle-nexus.publish-plugin")
     id("com.bmuschko.docker-spring-boot-application")
-    signing
     idea
+    // Kept although nothing is published: the release workflow may invoke the `publish`
+    // lifecycle task, which then exists as a no-op, and the publication guard below reads
+    // `plugins.hasPlugin("maven-publish")` to decide what to inspect.
     `maven-publish`
     id("io.gitlab.arturbosch.detekt")
     id("org.jlleitschuh.gradle.ktlint")
@@ -72,10 +74,6 @@ dependencies {
 
 ext {
     System.getenv().let {
-        set(
-            "signingRequired",
-            it.containsKey("ORG_GRADLE_PROJECT_signingKey") && it.containsKey("ORG_GRADLE_PROJECT_signingPassword"),
-        )
         set(
             "dockerRegistry",
             System.getenv().getOrDefault("DOCKER_REGISTRY", project.properties["docker.registry"]),
@@ -146,48 +144,78 @@ nexusPublishing {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("bootJar") {
-            artifact(tasks.getByName("bootJar"))
-            from(components["java"])
-            pom {
-                name.set(project.name)
-                description.set("Octopus module: ${project.name}")
-                url.set("https://github.com/octopusden/octopus-dms-ui.git")
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                scm {
-                    url.set("https://github.com/octopusden/octopus-dms-ui.git")
-                    connection.set("scm:git://github.com/octopusden/octopus-dms-ui.git")
-                }
-                developers {
-                    developer {
-                        id.set("octopus")
-                        name.set("octopus")
-                    }
-                }
-            }
-        }
-    }
-}
-
-signing {
-    isRequired = project.ext["signingRequired"] as Boolean
-    val signingKey: String? by project
-    val signingPassword: String? by project
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications["bootJar"])
-}
+// This repository publishes nothing to Maven Central: nothing consumes it as a Maven
+// dependency, and its deliverable is the docker image built below. The MavenPublication for
+// the bootJar (46 MB) and the `signing` block that signed it are therefore gone. The
+// release workflow also passes publish-to-nexus: false — the flag alone would only guard
+// the pipeline, while a manual `./gradlew publishToSonatype` with credentials would still
+// upload. Both halves, or it is not done.
+//
+// nexusPublishing above is intentionally left in place: it declares only the destination,
+// creates no publication, and keeps publishToSonatype existing as a harmless no-op.
 
 docker {
     springBootApplication {
         baseImage.set("${"dockerRegistry".getExt()}/eclipse-temurin:21-jdk")
         ports.set(listOf(8080))
         images.set(setOf("${"octopusGithubDockerRegistry".getExt()}/octopusden/${project.name}:${project.version}"))
+    }
+}
+
+// Regression guard: this repository must publish NOTHING to Maven Central, so the allowlist is
+// deliberately empty. Adding a publication anywhere — including to the root project — fails this
+// task rather than silently reappearing on Central at the next release.
+//
+// allprojects, not subprojects: the root is a publishable project like any other, and its path
+// is unambiguously ":" while its name is a repository-level string.
+val centralPublishedProjects = emptySet<String>()
+
+fun centralPublicationPolicyProblems(): List<String> {
+    // Reading `publishing` throws on a project without maven-publish, so check the plugin first.
+    val publishingProjects = allprojects.filter { candidate ->
+        candidate.plugins.hasPlugin("maven-publish") &&
+            candidate.extensions
+                .getByType(PublishingExtension::class.java)
+                .publications
+                .isNotEmpty()
+    }
+    val actual = publishingProjects.map { it.path }.toSet()
+    return if (actual != centralPublishedProjects) {
+        listOf(
+            "Maven Central publication set drifted. This repository is not consumed as a Maven\n" +
+                "dependency and must publish nothing.\n" +
+                "  allowlisted: ${centralPublishedProjects.sorted()}\n" +
+                "  publishing:  ${actual.sorted()}",
+        )
+    } else {
+        emptyList()
+    }
+}
+
+// A policy violation must fail its own gate, not every Gradle invocation: throwing at
+// configuration time would break build, test, dependencies and IDE sync as well.
+val verifyCentralPublicationPolicy =
+    tasks.register("verifyCentralPublicationPolicy") {
+        group = "verification"
+        description = "Fails if anything in this repository would publish to Maven Central."
+        doLast {
+            val problems = centralPublicationPolicyProblems()
+            if (problems.isNotEmpty()) {
+                throw GradleException(problems.joinToString("\n\n"))
+            }
+        }
+    }
+
+// Hook the task TYPE, so a concrete task such as publishMavenPublicationToMavenLocal cannot
+// bypass the guard; the aggregates are matched by name as well because `publish` is per-project
+// and `publishToSonatype` only exists with -Pnexus, so neither can be forced into existence.
+gradle.projectsEvaluated {
+    allprojects {
+        tasks.withType(AbstractPublishToMaven::class.java).configureEach {
+            dependsOn(verifyCentralPublicationPolicy)
+        }
+        tasks
+            .matching { it.name in setOf("publishToSonatype", "publish", "publishToMavenLocal") }
+            .configureEach { dependsOn(verifyCentralPublicationPolicy) }
     }
 }

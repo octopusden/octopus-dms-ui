@@ -6,11 +6,23 @@ on:
 
 jobs:
   build:
-    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-release.yml@v2.4.1
+    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-release.yml@v2.6.2
     with:
       flow-type: hybrid
       java-version: '21'
       commit-hash: ${{ github.event.client_payload.commit }}
       build-version: ${{ github.event.client_payload.project_version }}
       docker-image: dms-ui
+      # No consumer of this repository as a Maven dependency is known: nothing in this
+      # organisation resolves the coordinate, no version catalog aliases it, no TeamCity
+      # metarunner fetches it, and the README documents no install-from-Central path. That is
+      # the strongest statement the evidence supports — an external or private consumer cannot
+      # be ruled out from here. The deliverable is the docker image above.
+      publish-to-nexus: false
+      # With no artifact reaching Central there is nothing to poll for, so the release is
+      # registered inline instead of by a polling workflow. Safe because registration cannot
+      # outrun the deliverable: `register-release-in-log` is a separate job that `needs` both
+      # the build job (which pushes the image) and `tag-and-release`, so a failed push stops it
+      # from running at all. The ordering is a job dependency, not same-job step order.
+      register-release-immediately: true
     secrets: inherit
