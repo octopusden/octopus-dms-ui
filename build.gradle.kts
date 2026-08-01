@@ -19,6 +19,22 @@ plugins {
 }
 
 octopusQuality {
+    // This repository must publish NOTHING to Maven Central — #19 removed its publication
+    // (-47.9 MB and -60 files per release) and `release.yaml` sets `publish-to-nexus: false`.
+    // The declared set is therefore deliberately EMPTY, which is a statement, not an omission:
+    // the shared policy fails if any publication reappears.
+    //
+    // The local task that did this until now is deleted in the same commit as the version bump,
+    // because octopus-base v2.7.0 registers a task of exactly that name and two tasks of one
+    // name fail configuration.
+    //
+    // Note how this one is verified: with an empty set, GREEN prints NOTHING, so a passing run
+    // is not by itself evidence the task ran. RED can only be shown by temporarily ADDING a
+    // publication — there is nothing in the declaration to perturb.
+    publication {
+        enforceCentralPublications.set(true)
+        centralPublications.set(emptySet())
+    }
     // Repo has no tests / no coverage tool yet — disable coverage verification.
     coverage {
         enabled.set(false)
@@ -159,63 +175,5 @@ docker {
         baseImage.set("${"dockerRegistry".getExt()}/eclipse-temurin:21-jdk")
         ports.set(listOf(8080))
         images.set(setOf("${"octopusGithubDockerRegistry".getExt()}/octopusden/${project.name}:${project.version}"))
-    }
-}
-
-// Regression guard: this repository must publish NOTHING to Maven Central, so the allowlist is
-// deliberately empty. Adding a publication anywhere — including to the root project — fails this
-// task rather than silently reappearing on Central at the next release.
-//
-// allprojects, not subprojects: the root is a publishable project like any other, and its path
-// is unambiguously ":" while its name is a repository-level string.
-val centralPublishedProjects = emptySet<String>()
-
-fun centralPublicationPolicyProblems(): List<String> {
-    // Reading `publishing` throws on a project without maven-publish, so check the plugin first.
-    val publishingProjects = allprojects.filter { candidate ->
-        candidate.plugins.hasPlugin("maven-publish") &&
-            candidate.extensions
-                .getByType(PublishingExtension::class.java)
-                .publications
-                .isNotEmpty()
-    }
-    val actual = publishingProjects.map { it.path }.toSet()
-    return if (actual != centralPublishedProjects) {
-        listOf(
-            "Maven Central publication set drifted. This repository is not consumed as a Maven\n" +
-                "dependency and must publish nothing.\n" +
-                "  allowlisted: ${centralPublishedProjects.sorted()}\n" +
-                "  publishing:  ${actual.sorted()}",
-        )
-    } else {
-        emptyList()
-    }
-}
-
-// A policy violation must fail its own gate, not every Gradle invocation: throwing at
-// configuration time would break build, test, dependencies and IDE sync as well.
-val verifyCentralPublicationPolicy =
-    tasks.register("verifyCentralPublicationPolicy") {
-        group = "verification"
-        description = "Fails if anything in this repository would publish to Maven Central."
-        doLast {
-            val problems = centralPublicationPolicyProblems()
-            if (problems.isNotEmpty()) {
-                throw GradleException(problems.joinToString("\n\n"))
-            }
-        }
-    }
-
-// Hook the task TYPE, so a concrete task such as publishMavenPublicationToMavenLocal cannot
-// bypass the guard; the aggregates are matched by name as well because `publish` is per-project
-// and `publishToSonatype` only exists with -Pnexus, so neither can be forced into existence.
-gradle.projectsEvaluated {
-    allprojects {
-        tasks.withType(AbstractPublishToMaven::class.java).configureEach {
-            dependsOn(verifyCentralPublicationPolicy)
-        }
-        tasks
-            .matching { it.name in setOf("publishToSonatype", "publish", "publishToMavenLocal") }
-            .configureEach { dependsOn(verifyCentralPublicationPolicy) }
     }
 }

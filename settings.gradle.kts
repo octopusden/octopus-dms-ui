@@ -9,7 +9,7 @@ pluginManagement {
         id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
         id("io.gitlab.arturbosch.detekt") version (extra["detekt.version"] as String)
         id("org.jlleitschuh.gradle.ktlint") version (extra["ktlint-gradle.version"] as String)
-        id("org.octopusden.octopus-quality") version "2.6.2"
+        id("org.octopusden.octopus-quality") version "2.7.0"
     }
     repositories {
         gradlePluginPortal()
