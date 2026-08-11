@@ -55,16 +55,33 @@ function MetaLimitations(props) {
     </div>
 }
 
+// The base URL is optional: it is absent until /actuator/info resolves, and stays
+// absent where no value is configured. Anything blank, whitespace-only or not
+// http(s) is treated as absent so it can never reach an href, and the keys render
+// as plain text instead. Mirrors safeHttpUrl in the components-management-portal.
+function safeJiraBaseUrl(url) {
+    if (!url || !url.trim()) {
+        return null
+    }
+    const trimmed = url.trim()
+    try {
+        const {protocol} = new URL(trimmed)
+        // Trailing slashes stripped so the key is appended as /browse/KEY, not //browse/KEY.
+        return protocol === 'http:' || protocol === 'https:' ? trimmed.replace(/\/+$/, '') : null
+    } catch (e) {
+        return null
+    }
+}
+
 // Splits the raw text on Jira issue keys and turns each key into a link to the
 // ticket. Returns an array of strings and anchors for React to render - the text
-// itself stays escaped by React, so it is never interpreted as markup. Falls back
-// to plain text for the keys while the base URL is still unresolved - it arrives
-// with the /actuator/info fetch, and is absent entirely if the env has no config.
+// itself stays escaped by React, so it is never interpreted as markup.
 function linkifyJiraKeys(text, jiraBaseUrl) {
+    const baseUrl = safeJiraBaseUrl(jiraBaseUrl)
     return text.split(JIRA_KEY_PATTERN).map((part, index) =>
         // split() with a capturing group puts the captured keys at the odd indices.
-        index % 2 === 1 && jiraBaseUrl
-            ? <a key={index} href={`${jiraBaseUrl}/browse/${part}`} target="_blank" rel="noopener noreferrer">{part}</a>
+        index % 2 === 1 && baseUrl
+            ? <a key={index} href={`${baseUrl}/browse/${part}`} target="_blank" rel="noopener noreferrer">{part}</a>
             : part
     )
 }
