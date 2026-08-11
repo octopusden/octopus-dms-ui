@@ -55,10 +55,6 @@ function MetaLimitations(props) {
     </div>
 }
 
-// The base URL is optional: it is absent until /actuator/info resolves, and stays
-// absent where no value is configured. Anything blank, whitespace-only or not
-// http(s) is treated as absent so it can never reach an href, and the keys render
-// as plain text instead. Mirrors safeHttpUrl in the components-management-portal.
 function safeJiraBaseUrl(url) {
     if (!url || !url.trim()) {
         return null

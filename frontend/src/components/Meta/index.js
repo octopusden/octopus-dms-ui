@@ -5,7 +5,6 @@ import {connect} from "react-redux";
 
 const mapStateToProps = (state) => {
     const {meta} = get(state, "components.currentArtifacts")
-    // info.links.jira-base-url, carried on the /actuator/info payload already in buildInfo.
     const jiraBaseUrl = get(state, "components.buildInfo.links.jira-base-url")
     return {
         meta, jiraBaseUrl
