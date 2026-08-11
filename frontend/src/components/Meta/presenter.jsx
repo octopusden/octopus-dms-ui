@@ -59,11 +59,12 @@ function safeJiraBaseUrl(url) {
     if (!url || !url.trim()) {
         return null
     }
-    const trimmed = url.trim()
     try {
-        const {protocol} = new URL(trimmed)
-        // Trailing slashes stripped so the key is appended as /browse/KEY, not //browse/KEY.
-        return protocol === 'http:' || protocol === 'https:' ? trimmed.replace(/\/+$/, '') : null
+        const {protocol, origin, pathname} = new URL(url.trim())
+        if (protocol !== 'http:' && protocol !== 'https:') {
+            return null
+        }
+        return (origin + pathname).replace(/\/+$/, '')
     } catch (e) {
         return null
     }
