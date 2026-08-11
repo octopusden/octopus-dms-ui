@@ -5,8 +5,12 @@ import {connect} from "react-redux";
 
 const mapStateToProps = (state) => {
     const {meta} = get(state, "components.currentArtifacts")
+    // Resolved at runtime from info.links.jira-base-url in the config server, and
+    // surfaced on /actuator/info - the same payload the footer already reads for the
+    // build version. Kept out of the bundle so one image works in every environment.
+    const jiraBaseUrl = get(state, "components.buildInfo.links.jira-base-url")
     return {
-        meta
+        meta, jiraBaseUrl
     }
 }
 

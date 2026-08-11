@@ -2,16 +2,10 @@ import React from "react";
 import './style.css'
 import {Icon} from "@blueprintjs/core";
 
-// Base URL of the OWS Jira instance, used to linkify issue keys in the release
-// limitations text. This mirrors what the release-notification email already
-// does server-side (MessageFormatter.postProcessLimitations), which resolves a
-// single base URL from APKeys.JIRA_BASEURL and applies it to every key. The
-// portal has no runtime config, so the same URL is pinned here.
-const JIRA_BASE_URL = "https://ows-jira.spb.openwaygroup.com"
 const JIRA_KEY_PATTERN = /([A-Z][A-Z_0-9]+-\d+)/g
 
 export default function meta(props) {
-    const {meta} = props
+    const {meta, jiraBaseUrl} = props
     if (meta.ready) {
         return <div className="meta-container">
             <div className="meta-wrapper">
@@ -31,7 +25,7 @@ export default function meta(props) {
                     <MetaItem icon='build' keyName='Status' value={meta.status}/>
                 </div>
             </div>
-            <MetaLimitations value={meta.limitations}/>
+            <MetaLimitations value={meta.limitations} jiraBaseUrl={jiraBaseUrl}/>
         </div>
     } else {
         return <div className="meta-wrapper"></div>
@@ -48,7 +42,7 @@ function MetaItem(props) {
 }
 
 function MetaLimitations(props) {
-    const {value} = props
+    const {value, jiraBaseUrl} = props
     if (!value || !value.trim()) {
         return null
     }
@@ -57,18 +51,20 @@ function MetaLimitations(props) {
             <Icon className="meta-icon" icon='warning-sign' iconSize={12}/>
             <strong>Release Limitations:</strong>
         </div>
-        <div className="meta-limitations-value">{linkifyJiraKeys(value)}</div>
+        <div className="meta-limitations-value">{linkifyJiraKeys(value, jiraBaseUrl)}</div>
     </div>
 }
 
 // Splits the raw text on Jira issue keys and turns each key into a link to the
 // ticket. Returns an array of strings and anchors for React to render - the text
-// itself stays escaped by React, so it is never interpreted as markup.
-function linkifyJiraKeys(text) {
+// itself stays escaped by React, so it is never interpreted as markup. Falls back
+// to plain text for the keys while the base URL is still unresolved - it arrives
+// with the /actuator/info fetch, and is absent entirely if the env has no config.
+function linkifyJiraKeys(text, jiraBaseUrl) {
     return text.split(JIRA_KEY_PATTERN).map((part, index) =>
         // split() with a capturing group puts the captured keys at the odd indices.
-        index % 2 === 1
-            ? <a key={index} href={`${JIRA_BASE_URL}/browse/${part}`} target="_blank" rel="noopener noreferrer">{part}</a>
+        index % 2 === 1 && jiraBaseUrl
+            ? <a key={index} href={`${jiraBaseUrl}/browse/${part}`} target="_blank" rel="noopener noreferrer">{part}</a>
             : part
     )
 }
