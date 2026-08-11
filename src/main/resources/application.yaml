@@ -1,5 +1,3 @@
 server:
   port: 8090
-info:
-  links:
-    jira-base-url: ${JIRA_BASE_URL:}
+
