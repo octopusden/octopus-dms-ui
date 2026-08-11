@@ -1,15 +1,5 @@
 server:
   port: 8090
-
-# Base URL the SPA turns Jira issue keys in Release Limitations into links with.
-# Exposed to the browser on /actuator/info (management.info.env.enabled is set in
-# service-config's dms-ui.yaml), which the SPA already fetches for the footer build
-# version. Config-server sets it per env (info.links.jira-base-url, resolved from
-# the shared jira host placeholder) and those property sources override this
-# default; the env var is the local/docker fallback.
-# Declared with a blank default rather than a real host so no environment-specific
-# URL is pinned in this repo. Blank resolves to "absent" in the SPA, which renders
-# the issue keys as plain text instead of links.
 info:
   links:
     jira-base-url: ${JIRA_BASE_URL:}
