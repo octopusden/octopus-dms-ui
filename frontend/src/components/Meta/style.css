@@ -1,3 +1,27 @@
+.meta-container {
+    width: 100%;
+
+    & .meta-limitations {
+        padding: 0 10px 10px 10px;
+
+        & > .meta-limitations-key {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+
+            & > .meta-icon {
+                margin-right: 8px;
+            }
+        }
+
+        & > .meta-limitations-value {
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            padding-left: 20px;
+        }
+    }
+}
+
 .meta-wrapper {
     width: 100%;
     display: flex;

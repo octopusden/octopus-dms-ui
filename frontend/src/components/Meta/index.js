@@ -5,8 +5,9 @@ import {connect} from "react-redux";
 
 const mapStateToProps = (state) => {
     const {meta} = get(state, "components.currentArtifacts")
+    const jiraBaseUrl = get(state, "components.buildInfo.links.jira-base-url")
     return {
-        meta
+        meta, jiraBaseUrl
     }
 }
 
