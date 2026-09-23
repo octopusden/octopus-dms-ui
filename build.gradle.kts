@@ -16,6 +16,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt")
     id("org.jlleitschuh.gradle.ktlint")
     id("org.octopusden.octopus-quality")
+    id("org.sonarqube")
 }
 
 octopusQuality {
@@ -54,6 +55,20 @@ java {
     JavaVersion.VERSION_21.let {
         sourceCompatibility = it
         targetCompatibility = it
+    }
+}
+
+sonar {
+    // The Sonar Gradle plugin derives sonar.sources from the JVM source sets, so the React
+    // application under frontend/ - 36 JS/JSX files and 13 stylesheets - is invisible to it.
+    // Naming sonar.sources replaces the derived value rather than adding to it, so the Kotlin
+    // root has to be listed here too.
+    //
+    // This is the repository's own layout, which the shared workflow in octopus-base cannot
+    // know; every Sonar deployment property still comes from it.
+    properties {
+        property("sonar.sources", "src/main/kotlin,frontend/src")
+        property("sonar.exclusions", "frontend/node_modules/**,frontend/dist/**")
     }
 }
 
